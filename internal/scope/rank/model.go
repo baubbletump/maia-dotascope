@@ -7,8 +7,8 @@ import (
 )
 
 type PlayerRankHistory struct {
-	ID          uuid.UUID `json:"id"`
-	AccountID   int       `json:"account_id"`
-	Tier        int       `json:"tier"`
-	Recorded_at time.Time `json:"recorded_at"`
+	ID         uuid.UUID `json:"id"`
+	AccountID  int       `json:"account_id"`
+	Tier       int       `json:"tier"`
+	RecordedAt time.Time `json:"recorded_at"`
 }

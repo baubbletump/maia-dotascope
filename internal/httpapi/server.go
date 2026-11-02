@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/baubbletump/maia-dotascope/internal/scope/player"
 	"github.com/baubbletump/maia-dotascope/internal/scope/rank"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -31,6 +32,7 @@ func (s *Server) Handler() http.Handler {
 	})
 
 	rank.Register(mux, s.pool, s.logger)
+	player.Register(mux, s.pool, s.logger)
 
 	return mux
 }

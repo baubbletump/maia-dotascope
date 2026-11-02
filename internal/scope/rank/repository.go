@@ -17,7 +17,7 @@ func NewRepository(pool *pgxpool.Pool) *Repository {
 }
 
 func (r *Repository) Create(ctx context.Context, rank PlayerRankHistory) (PlayerRankHistory, error) {
-	var player PlayerRankHistory
+	var ply PlayerRankHistory
 
 	err := r.pool.QueryRow(
 		ctx,
@@ -26,9 +26,9 @@ func (r *Repository) Create(ctx context.Context, rank PlayerRankHistory) (Player
 		 RETURNING id, account_id, mmr, recorded_at`,
 		rank.AccountID,
 		rank.Tier,
-	).Scan(&player.ID, &player.AccountID, &player.Tier, &player.Recorded_at)
+	).Scan(&ply.ID, &ply.AccountID, &ply.Tier, &ply.RecordedAt)
 
-	return player, err
+	return ply, err
 }
 
 func (r *Repository) GetPlayerRankHistory(ctx context.Context, playerID int) ([]PlayerRankHistory, error) {
@@ -49,7 +49,7 @@ func (r *Repository) GetPlayerRankHistory(ctx context.Context, playerID int) ([]
 
 	for rows.Next() {
 		var r PlayerRankHistory
-		if err := rows.Scan(&r.ID, &r.AccountID, &r.Tier, &r.Recorded_at); err != nil {
+		if err := rows.Scan(&r.ID, &r.AccountID, &r.Tier, &r.RecordedAt); err != nil {
 			return nil, err
 		}
 		ranks = append(ranks, r)

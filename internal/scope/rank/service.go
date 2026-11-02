@@ -2,6 +2,7 @@ package rank
 
 import (
 	"context"
+	"time"
 
 	"github.com/baubbletump/maia-dotascope/internal/scope/dota"
 )
@@ -24,17 +25,21 @@ func NewService(store Store, client dota.Client) *Service {
 }
 
 func (s *Service) GetPlayerRankHistory(ctx context.Context, playerID int) ([]PlayerRankHistory, error) {
+	list, err := s.store.GetPlayerRankHistory(ctx, playerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(list) > 0 && time.Since(list[0].RecordedAt) < 5*time.Minute {
+		return list, nil
+	}
+
 	player, err := s.dotaClient.GetPlayerById(ctx, playerID)
 	if err != nil {
 		return nil, err
 	}
 
 	rank := PlayerToHistory(player)
-
-	list, err := s.store.GetPlayerRankHistory(ctx, playerID)
-	if err != nil {
-		return nil, err
-	}
 
 	if len(list) > 0 && list[0].Tier == rank.Tier {
 		return list, nil
