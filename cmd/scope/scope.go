@@ -38,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := httpapi.New(pool, logger)
+	server := httpapi.NewServer(pool, logger)
 
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,

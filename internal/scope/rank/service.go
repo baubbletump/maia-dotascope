@@ -3,28 +3,52 @@ package rank
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/baubbletump/maia-dotascope/internal/scope/dota"
 )
 
 type Store interface {
-	List(context.Context, int) ([]PlayerRankHistory, error)
-	Create(context.Context, PlayerRankHistory) (uuid.UUID, error)
+	GetPlayerRankHistory(context.Context, int) ([]PlayerRankHistory, error)
+	Create(context.Context, PlayerRankHistory) (PlayerRankHistory, error)
 }
 
 type Service struct {
-	store Store
+	store      Store
+	dotaClient dota.Client
 }
 
-func NewService(store Store) *Service {
+func NewService(store Store, client dota.Client) *Service {
 	return &Service{
-		store: store,
+		store:      store,
+		dotaClient: client,
 	}
 }
 
-func (s *Service) List(ctx context.Context, playerID int) ([]PlayerRankHistory, error) {
-	return s.store.List(ctx, playerID)
+func (s *Service) GetPlayerRankHistory(ctx context.Context, playerID int) ([]PlayerRankHistory, error) {
+	player, err := s.dotaClient.GetPlayerById(ctx, playerID)
+	if err != nil {
+		return nil, err
+	}
+
+	rank := PlayerToHistory(player)
+
+	list, err := s.store.GetPlayerRankHistory(ctx, playerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(list) > 0 && list[0].Tier == rank.Tier {
+		return list, nil
+	}
+
+	row, err := s.store.Create(ctx, rank)
+	if err != nil {
+		return nil, err
+	}
+	list = append(list, row)
+
+	return list, nil
 }
 
-func (s *Service) Create(ctx context.Context, rank PlayerRankHistory) (uuid.UUID, error) {
+func (s *Service) Create(ctx context.Context, rank PlayerRankHistory) (PlayerRankHistory, error) {
 	return s.store.Create(ctx, rank)
 }

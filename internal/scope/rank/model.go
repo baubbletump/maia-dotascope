@@ -9,6 +9,6 @@ import (
 type PlayerRankHistory struct {
 	ID          uuid.UUID `json:"id"`
 	AccountID   int       `json:"account_id"`
-	MMR         int       `json:"mmr"`
+	Tier        int       `json:"tier"`
 	Recorded_at time.Time `json:"recorded_at"`
 }

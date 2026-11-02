@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/baubbletump/maia-dotascope/internal/scope/dota"
 	"github.com/baubbletump/maia-dotascope/internal/utils"
 )
 
 type Handler struct {
 	service Store
+	client  dota.Client
 	logger  *slog.Logger
 }
 
@@ -31,7 +33,7 @@ func (h *Handler) getList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items, err := h.service.List(r.Context(), int(accountID))
+	items, err := h.service.GetPlayerRankHistory(r.Context(), int(accountID))
 	if err != nil {
 		h.logger.Error("request failed", "error", err)
 		utils.WriteError(w, http.StatusInternalServerError, "internal server error")

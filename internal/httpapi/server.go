@@ -14,7 +14,7 @@ type Server struct {
 	logger *slog.Logger
 }
 
-func New(pool *pgxpool.Pool, logger *slog.Logger) *Server {
+func NewServer(pool *pgxpool.Pool, logger *slog.Logger) *Server {
 	return &Server{
 		pool:   pool,
 		logger: logger,
