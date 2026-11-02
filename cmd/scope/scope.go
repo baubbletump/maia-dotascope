@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/baubbletump/maia-dotascope/config"
-	"github.com/baubbletump/maia-dotascope/httpapi"
+	"github.com/baubbletump/maia-dotascope/internal/config"
+	"github.com/baubbletump/maia-dotascope/internal/httpapi"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -38,7 +38,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := httpapi.New(logger)
+	server := httpapi.New(pool, logger)
 
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddr,
