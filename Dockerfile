@@ -14,6 +14,6 @@ FROM alpine:3.23
 
 WORKDIR /build
 
-COPY --from=build /app /build
+COPY --from=build /app/score ./score
 
 CMD ["./scope"]

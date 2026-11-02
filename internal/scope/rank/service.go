@@ -45,11 +45,11 @@ func (s *Service) GetPlayerRankHistory(ctx context.Context, playerID int) ([]Pla
 		return list, nil
 	}
 
-	row, err := s.store.Create(ctx, rank)
+	row, err := s.Create(ctx, rank)
 	if err != nil {
 		return nil, err
 	}
-	list = append(list, row)
+	list = append([]PlayerRankHistory{row}, list...)
 
 	return list, nil
 }

@@ -12,7 +12,7 @@ type Config struct {
 
 func Load() (Config, error) {
 	return Config{
-		HTTPAddr:    getenv("HTTPAddr", ":8080"),
+		HTTPAddr:    getenv("HTTP_ADDR", ":8080"),
 		DatabaseURL: createDatabaseURL(),
 	}, nil
 }

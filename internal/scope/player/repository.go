@@ -2,7 +2,9 @@ package player
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -26,7 +28,10 @@ func (r Repository) GetByAccountID(ctx context.Context, accountID int) (Player, 
 	).Scan(&ply.ID, &ply.AccountID, &ply.Username, &ply.ProfileUrl, &ply.CreatedAt)
 
 	if err != nil {
-		return Player{}, ErrNotFound
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Player{}, ErrNotFound
+		}
+		return Player{}, err
 	}
 
 	return ply, nil
@@ -38,6 +43,7 @@ func (r Repository) List(ctx context.Context) ([]Player, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	players := make([]Player, 0)
 	for rows.Next() {
@@ -65,7 +71,7 @@ func (r Repository) Create(ctx context.Context, player Player) (Player, error) {
 	).Scan(
 		&ply.ID,
 		&ply.AccountID,
-		player.Username,
+		&player.Username,
 		&ply.ProfileUrl,
 		&ply.CreatedAt,
 	)

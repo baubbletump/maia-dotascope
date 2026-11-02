@@ -28,7 +28,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 
 func (h *Handler) getByAccountID(w http.ResponseWriter, r *http.Request) {
 	accountId, err := strconv.ParseInt(r.PathValue("accountId"), 10, 64)
-	if err != nil && accountId <= 0 {
+	if err != nil || accountId <= 0 {
 		utils.WriteError(w, http.StatusBadRequest, "invalid player id")
 		return
 	}
