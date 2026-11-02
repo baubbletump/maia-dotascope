@@ -58,6 +58,6 @@ func main() {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := httpServer.Shutdown(shutdownCtx); err != nil {
-		logger.Error("Http shitdown failed", "error", err)
+		logger.Error("Http shutdown failed", "error", err)
 	}
 }

@@ -45,6 +45,7 @@ func (s *Service) GetPlayerRankHistory(ctx context.Context, playerID int) ([]Pla
 		return list, nil
 	}
 
+	// TODO: При создании новой записи без игрока, будет ругаться из-за внешнего ключа
 	row, err := s.Create(ctx, rank)
 	if err != nil {
 		return nil, err
