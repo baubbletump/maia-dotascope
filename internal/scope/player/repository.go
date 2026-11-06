@@ -23,7 +23,7 @@ func (r Repository) GetByAccountID(ctx context.Context, accountID int) (Player, 
 
 	err := r.pool.QueryRow(
 		ctx,
-		`SELECT * FROM scope.player WHERE account_id = $1`,
+		`SELECT id, account_id, username, profile_url, created_at FROM scope.player WHERE account_id = $1`,
 		accountID,
 	).Scan(&ply.ID, &ply.AccountID, &ply.Username, &ply.ProfileUrl, &ply.CreatedAt)
 

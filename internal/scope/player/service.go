@@ -3,8 +3,10 @@ package player
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/baubbletump/maia-dotascope/internal/scope/dota"
+	"github.com/baubbletump/maia-dotascope/internal/workerpool"
 )
 
 type Store interface {
@@ -14,14 +16,14 @@ type Store interface {
 }
 
 type Service struct {
-	store      Store
-	dotaClient dota.Client
+	store  Store
+	client dota.Client
 }
 
 func NewService(store Store, client dota.Client) *Service {
 	return &Service{
-		store:      store,
-		dotaClient: client,
+		store:  store,
+		client: client,
 	}
 }
 
@@ -40,13 +42,28 @@ func (s *Service) GetOrCreate(ctx context.Context, accountID int) (Player, error
 		return ply, err
 	}
 
-	plyResp, err := s.dotaClient.GetPlayerById(ctx, accountID)
+	plyResp, err := s.client.GetPlayerById(ctx, accountID)
 	if err != nil {
 		return Player{}, err
 	}
 
 	ply = PlayerToPlayer(plyResp)
 	return s.store.Create(ctx, ply)
+}
+
+func (s *Service) GetOrCreateMany(ctx context.Context, ids []int) ([]Player, error) {
+	results := workerpool.Map(ctx, ids, 5, s.GetOrCreate)
+
+	players := make([]Player, 0, len(results))
+	var errs []error
+	for _, r := range results {
+		if r.Err != nil {
+			errs = append(errs, fmt.Errorf("player %d: %w", ids[r.Index], r.Err))
+			continue
+		}
+		players = append(players, r.Value)
+	}
+	return players, errors.Join(errs...)
 }
 
 func (s *Service) Ensure(ctx context.Context, p Player) (Player, error) {
