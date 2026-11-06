@@ -34,7 +34,7 @@ func (r *Repository) Create(ctx context.Context, rank PlayerRankHistory) (Player
 func (r *Repository) GetPlayerRankHistory(ctx context.Context, playerID int) ([]PlayerRankHistory, error) {
 	rows, err := r.pool.Query(
 		ctx,
-		`SELECT * FROM scope.player_rank_history prh 
+		`SELECT id, account_id, tier, recorded_at FROM scope.player_rank_history prh 
 		 WHERE prh.account_id = $1
 		 ORDER BY recorded_at DESC`,
 		playerID,

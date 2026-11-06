@@ -26,15 +26,7 @@ func NewService(store Store, client dota.Client) *Service {
 }
 
 func (s *Service) GetByAccountID(ctx context.Context, accountID int) (Player, error) {
-	ply, err := s.store.GetByAccountID(ctx, accountID)
-	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			return s.GetOrCreate(ctx, accountID)
-		}
-		return Player{}, err
-	}
-
-	return ply, err
+	return s.GetOrCreate(ctx, accountID)
 }
 
 func (s *Service) List(ctx context.Context) ([]Player, error) {
