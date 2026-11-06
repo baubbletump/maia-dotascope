@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/baubbletump/maia-dotascope/internal/scope/dota"
+	"github.com/baubbletump/maia-dotascope/internal/scope/player"
 )
 
 type Store interface {
@@ -13,14 +14,20 @@ type Store interface {
 }
 
 type Service struct {
-	store      Store
-	dotaClient dota.Client
+	store         Store
+	dotaClient    dota.Client
+	playerService PlayerService
 }
 
-func NewService(store Store, client dota.Client) *Service {
+type PlayerService interface {
+	Ensure(context.Context, player.Player) (player.Player, error)
+}
+
+func NewService(store Store, client dota.Client, playerService PlayerService) *Service {
 	return &Service{
-		store:      store,
-		dotaClient: client,
+		store:         store,
+		dotaClient:    client,
+		playerService: playerService,
 	}
 }
 
@@ -34,25 +41,27 @@ func (s *Service) GetPlayerRankHistory(ctx context.Context, playerID int) ([]Pla
 		return list, nil
 	}
 
-	player, err := s.dotaClient.GetPlayerById(ctx, playerID)
+	resp, err := s.dotaClient.GetPlayerById(ctx, playerID)
 	if err != nil {
 		return nil, err
 	}
 
-	rank := PlayerToHistory(player)
+	rank := PlayerToHistory(resp)
 
 	if len(list) > 0 && list[0].Tier == rank.Tier {
 		return list, nil
 	}
 
-	// TODO: При создании новой записи без игрока, будет ругаться из-за внешнего ключа
+	if _, err := s.playerService.Ensure(ctx, player.PlayerToPlayer(resp)); err != nil {
+		return nil, err
+	}
+
 	row, err := s.Create(ctx, rank)
 	if err != nil {
 		return nil, err
 	}
-	list = append([]PlayerRankHistory{row}, list...)
 
-	return list, nil
+	return append([]PlayerRankHistory{row}, list...), nil
 }
 
 func (s *Service) Create(ctx context.Context, rank PlayerRankHistory) (PlayerRankHistory, error) {

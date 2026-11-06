@@ -29,7 +29,7 @@ func (s *Service) GetByAccountID(ctx context.Context, accountID int) (Player, er
 	ply, err := s.store.GetByAccountID(ctx, accountID)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			return s.Create(ctx, accountID)
+			return s.GetOrCreate(ctx, accountID)
 		}
 		return Player{}, err
 	}
@@ -41,12 +41,22 @@ func (s *Service) List(ctx context.Context) ([]Player, error) {
 	return s.store.List(ctx)
 }
 
-func (s *Service) Create(ctx context.Context, accountID int) (Player, error) {
+func (s *Service) GetOrCreate(ctx context.Context, accountID int) (Player, error) {
+	ply, err := s.store.GetByAccountID(ctx, accountID)
+
+	if !errors.Is(err, ErrNotFound) {
+		return ply, err
+	}
+
 	plyResp, err := s.dotaClient.GetPlayerById(ctx, accountID)
 	if err != nil {
 		return Player{}, err
 	}
 
-	ply := PlayerToPlayer(plyResp)
+	ply = PlayerToPlayer(plyResp)
 	return s.store.Create(ctx, ply)
+}
+
+func (s *Service) Ensure(ctx context.Context, p Player) (Player, error) {
+	return s.store.Create(ctx, p)
 }

@@ -64,6 +64,9 @@ func (r Repository) Create(ctx context.Context, player Player) (Player, error) {
 		ctx,
 		`INSERT INTO scope.player (account_id, username, profile_url)
 		 VALUES ($1, $2, $3)
+		 ON CONFLICT (account_id) DO NOTHING
+		 	SET username = EXCLUDED.username,
+				profile_url = EXCLUDED.profile_url
 		 RETURNING id, account_id, username, profile_url, created_at`,
 		player.AccountID,
 		player.Username,
@@ -71,7 +74,7 @@ func (r Repository) Create(ctx context.Context, player Player) (Player, error) {
 	).Scan(
 		&ply.ID,
 		&ply.AccountID,
-		&player.Username,
+		&ply.Username,
 		&ply.ProfileUrl,
 		&ply.CreatedAt,
 	)

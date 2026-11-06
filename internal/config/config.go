@@ -28,11 +28,11 @@ func getenv(key, fallback string) string {
 func createDatabaseURL() string {
 	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		getenv("POSTGRES_USER", "admin"),
-		getenv("POSTGRES_PASSWORD", "admin"),
+		getenv("DB_USER", "admin"),
+		getenv("DB_PASSWORD", "admin"),
 		getenv("DB_HOST", "localhost"),
 		getenv("DB_PORT", "5432"),
-		getenv("POSTGRES_DB", "scope"),
+		getenv("DB_NAME", "scope"),
 		getenv("SSL_MODE", "disable"),
 	)
 }

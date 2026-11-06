@@ -21,9 +21,9 @@ func (r *Repository) Create(ctx context.Context, rank PlayerRankHistory) (Player
 
 	err := r.pool.QueryRow(
 		ctx,
-		`INSERT INTO scope.player_rank_history (account_id, mmr) 
+		`INSERT INTO scope.player_rank_history (account_id, tier) 
 		 VALUES($1, $2) 
-		 RETURNING id, account_id, mmr, recorded_at`,
+		 RETURNING id, account_id, tier, recorded_at`,
 		rank.AccountID,
 		rank.Tier,
 	).Scan(&ply.ID, &ply.AccountID, &ply.Tier, &ply.RecordedAt)
